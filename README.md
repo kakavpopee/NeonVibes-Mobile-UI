@@ -25,8 +25,7 @@ end)
 
 ui:AddSlider(tab, "Speed", 1, 100, 50, function(val)
     print(val)
-end)```
-
+end)
 ## Features
 - Responsive window (92% width, max 460px).
 - Vertical tabs.
