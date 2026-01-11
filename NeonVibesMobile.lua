@@ -348,4 +348,5 @@ function NeonVibesMobile:Notify(text, duration)
     task.wait(0.3)
     notifyFrame:Destroy()
 end
+
 return NeonVibesMobile
