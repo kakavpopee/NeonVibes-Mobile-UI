@@ -1,100 +1,72 @@
-# NeonVibes Mobile UI
+# NeonVibes Mobile UI – 2026 Edition
 
-Mobile-optimized Roblox UI Library  
-Neon-themed • Touch-friendly • Big elements • Vertical layout
+Mobile-first neon Roblox UI library (Rayfield-inspired)  
+Big touch targets • Smooth animations • Many elements
 
-## Quick Load (Paste this to use)
+## Quick Load
 
 ```lua
 local NeonVibes = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
 ```
-
-## Basic Usage Example
-
-```lua
-local ui = NeonVibes.new("NeonVibes Mobile")
+# New Features 2026
+Horizontal scrolling tabs (unlimited tabs)
+Minimize / Restore with smooth animation (+ draggable opener circle)
+Theme switcher (Dark/Light)
+Section headers
+Toggle • Button • Slider • Dropdown • ColorPicker • Keybind • Textbox • Paragraph/Label
+Configuration saving (toggles, sliders, etc.)
+Global UI toggle keybind (default: RightShift)
+Discord join prompt option
+Performance & mobile optimizations
+Example Usage
+```local ui = NeonVibes.new("My 2026 Hub")
 
 local tabMain = ui:CreateTab("Main")
-local tabSettings = ui:CreateTab("Settings")
+local tabVisuals = ui:CreateTab("Visuals")
 
-ui:AddButton(tabMain, "Teleport Home", function()
-    ui:Notify("Teleported to spawn!", 4)
+ui:AddSection(tabMain, "Basic Controls")
+
+ui:AddButton(tabMain, "Teleport To Spawn", function()
+    ui:Notify("Teleported!", 3)
 end)
 
-ui:AddSlider(tabMain, "Walk Speed", 16, 300, 50, function(value)
-    if game.Players.LocalPlayer.Character then
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
-    end
+ui:AddToggle(tabMain, "Infinite Jump", false, function(state)
+    print("Infinite Jump:", state)
+end, "InfJump") -- auto-saves
+
+ui:AddSlider(tabMain, "Speed", 16, 500, 50, function(val)
+    -- set walkspeed
 end)
 
-ui:AddButton(tabSettings, "Close UI", function()
-    ui.ScreenGui:Destroy()
+ui:AddDropdown(tabMain, "ESP Mode", {"Box", "Tracer", "None"}, "None", function(selected)
+    print("ESP:", selected)
 end)
+
+ui:AddColorPicker(tabVisuals, "ESP Color", Color3.fromRGB(255,0,0), function(color)
+    print("Color changed:", color)
+end)
+
+ui:AddKeybind(tabMain, "Open Menu", Enum.KeyCode.F, function(key)
+    print("Keybind set to:", key.Name)
+end)
+
+ui:AddTextbox(tabMain, "Custom Message", "Hello", function(text)
+    print("Text:", text)
+end)
+
+ui:Notify("Welcome to NeonVibes 2026!", 5)
 ```
-
-## API Reference
-
-### `NeonVibes.new(title: string?) → ui`
-
-Creates a new instance of the UI.  
-Returns the main library object.
-
-- `title` (optional) – Window title text (default: "NeonVibes Mobile")
-
-### `:CreateTab(name: string) → tab`
-
-Creates a new vertical tab.  
-Returns a tab object to which you can add elements.
-
-- `name` – Display name of the tab
-
-### `:AddButton(tab: tab, text: string, callback: function)`
-
-Adds a large, touch-friendly button with ripple effect.
-
-- `tab` – tab object returned by `:CreateTab`
-- `text` – button label
-- `callback` – function called when button is tapped/clicked
-
-### `:AddSlider(tab: tab, name: string, min: number, max: number, default: number, callback: function(number))`
-
-Adds a large slider with wide touch hitbox.
-
-- `tab` – target tab
-- `name` – label shown above slider
-- `min` – minimum value
-- `max` – maximum value
-- `default` – starting value
-- `callback(value)` – called on every change with rounded value
-
-### `:Notify(text: string, duration: number?)`
-
-Shows a temporary notification that slides in from the right.
-
-- `text` – message to display
-- `duration` (optional) – seconds to show (default: 3)
-
-## Features Overview
-
-- Responsive window size (92% screen width, max ~460px)
-- Mobile drag (touch + mouse support)
-- Large touch targets (buttons ~54px height)
-- Ripple animation on button press
-- Vertical tab navigation
-- Neon cyan glow theme
-- Smooth animations using TweenService
-- Scrolling content with safe padding
-
-## Recommended Practices
-
-- Use full-width elements (already default)
-- Keep callbacks short & fast
-- Test on real mobile device (emulator scaling may differ)
-- Add `pcall` around loadstring for production scripts
-
-## Current Raw Source
-
-https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
-
-MIT License – Free to use, modify, distribute.  
-Created for mobile Roblox experience – January 2026
+## API Quick Reference
+.new(title) → Create UI
+:CreateTab(name) → New tab
+:AddSection(tab, title)
+:AddButton(tab, text, callback)
+:AddToggle(tab, name, default, callback, flag?)
+:AddSlider(tab, name, min, max, default, callback)
+:AddDropdown(tab, name, options:table, default, callback)
+:AddColorPicker(tab, name, defaultColor, callback)
+:AddKeybind(tab, name, defaultKey, callback)
+:AddTextbox(tab, name, defaultText, callback)
+:Notify(text, duration?)
+Full documentation & more elements coming soon – keep updating the file!
+MIT License • Mobile Optimized • Free to modify
