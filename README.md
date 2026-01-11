@@ -1,76 +1,100 @@
 # NeonVibes Mobile UI
 
-Mobile-optimized Roblox UI library with neon theme, inspired by Rayfield. Big touch targets, vertical layouts for phones/tablets.
+Mobile-optimized Roblox UI Library  
+Neon-themed • Touch-friendly • Big elements • Vertical layout
 
-## Features
-- Responsive window (92% width, max 460px).
-- Vertical tabs.
-- Big buttons with ripples, sliders with large hitboxes.
-- Notifications with animations.
-- Draggable title bar.
+## Quick Load (Paste this to use)
 
-## Installation
-1. Download `NeonVibesMobile.lua` from releases.
-2. In script: `local ui = require(path.to.NeonVibesMobile)`
-
-## Usage Example
 ```lua
-local ui = NeonVibesMobile.new("My UI")
+local NeonVibes = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
+```
 
-local tab = ui:CreateTab("Main")
+## Basic Usage Example
 
-ui:AddButton(tab, "Test", function()
-    ui:Notify("Tapped!")
-end)
-
-ui:AddSlider(tab, "Speed", 1, 100, 50, function(val)
-    print(val)
-end)
-## Features
-- Responsive window (92% width, max 460px).
-- Vertical tabs.
-- Big buttons with ripples, sliders with large hitboxes.
-- Notifications with animations.
-- Draggable title bar.
-
-## Installation
-1. Download `NeonVibesMobile.lua` from releases.
-2. In script: `local ui = require(path.to.NeonVibesMobile)`
-
-## Usage Example
 ```lua
-local ui = NeonVibesMobile.new("My UI")
+local ui = NeonVibes.new("NeonVibes Mobile")
 
-local tab = ui:CreateTab("Main")
+local tabMain = ui:CreateTab("Main")
+local tabSettings = ui:CreateTab("Settings")
 
-ui:AddButton(tab, "Test", function()
-    ui:Notify("Tapped!")
+ui:AddButton(tabMain, "Teleport Home", function()
+    ui:Notify("Teleported to spawn!", 4)
 end)
 
-ui:AddSlider(tab, "Speed", 1, 100, 50, function(val)
-    print(val)
+ui:AddSlider(tabMain, "Walk Speed", 16, 300, 50, function(value)
+    if game.Players.LocalPlayer.Character then
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+    end
+end)
+
+ui:AddButton(tabSettings, "Close UI", function()
+    ui.ScreenGui:Destroy()
 end)
 ```
 
 ## API Reference
 
-### .new(title: string?) -> ui
-Creates UI.
+### `NeonVibes.new(title: string?) → ui`
 
-### :CreateTab(name: string) -> tab
-Adds tab.
+Creates a new instance of the UI.  
+Returns the main library object.
 
-### :AddButton(tab, text: string, callback: function)
-Adds button.
+- `title` (optional) – Window title text (default: "NeonVibes Mobile")
 
-### :AddSlider(tab, name: string, min: number, max: number, default: number, callback: function)
-Adds slider.
+### `:CreateTab(name: string) → tab`
 
-### :Notify(text: string, duration: number?)
-Shows notification.
+Creates a new vertical tab.  
+Returns a tab object to which you can add elements.
 
-## Contributing
-Fork, edit in your editor (like QuickEdit), PR!
+- `name` – Display name of the tab
 
-## License
-MIT - free use/modify.
+### `:AddButton(tab: tab, text: string, callback: function)`
+
+Adds a large, touch-friendly button with ripple effect.
+
+- `tab` – tab object returned by `:CreateTab`
+- `text` – button label
+- `callback` – function called when button is tapped/clicked
+
+### `:AddSlider(tab: tab, name: string, min: number, max: number, default: number, callback: function(number))`
+
+Adds a large slider with wide touch hitbox.
+
+- `tab` – target tab
+- `name` – label shown above slider
+- `min` – minimum value
+- `max` – maximum value
+- `default` – starting value
+- `callback(value)` – called on every change with rounded value
+
+### `:Notify(text: string, duration: number?)`
+
+Shows a temporary notification that slides in from the right.
+
+- `text` – message to display
+- `duration` (optional) – seconds to show (default: 3)
+
+## Features Overview
+
+- Responsive window size (92% screen width, max ~460px)
+- Mobile drag (touch + mouse support)
+- Large touch targets (buttons ~54px height)
+- Ripple animation on button press
+- Vertical tab navigation
+- Neon cyan glow theme
+- Smooth animations using TweenService
+- Scrolling content with safe padding
+
+## Recommended Practices
+
+- Use full-width elements (already default)
+- Keep callbacks short & fast
+- Test on real mobile device (emulator scaling may differ)
+- Add `pcall` around loadstring for production scripts
+
+## Current Raw Source
+
+https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
+
+MIT License – Free to use, modify, distribute.  
+Created for mobile Roblox experience – January 2026
