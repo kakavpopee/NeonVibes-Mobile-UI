@@ -59,7 +59,9 @@ end)
 
 -- Change color later
 colorPicker:UpdateColorPicker(Color3.fromRGB(0, 255, 0))
+```
 
+```lua
 -- Global controls
 library:Keybind("RightShift")   -- press RightShift to hide/show all UI
 library:Hide()                  -- toggle visibility manually
@@ -91,4 +93,5 @@ colorPicker:UpdateColorPicker(color: Color3 | boolean)
 # Raw Source
 https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
 # MIT License – Free to use, modify, and distribute
+
 
