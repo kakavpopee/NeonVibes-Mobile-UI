@@ -8,7 +8,9 @@ Mobile-optimized Roblox UI library inspired by Rayfield and Fluent, with full Tu
 
 ```lua
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
-Quick Start Example
+```
+## Quick Start Example
+```lua
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
 
 -- Create main window
@@ -89,3 +91,4 @@ colorPicker:UpdateColorPicker(color: Color3 | boolean)
 # Raw Source
 https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
 # MIT License – Free to use, modify, and distribute
+
