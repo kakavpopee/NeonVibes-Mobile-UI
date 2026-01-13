@@ -1,72 +1,77 @@
-# NeonVibes Mobile UI – 2026 Edition
+# Made By ❤ by #KaolinScrpts
 
-Mobile-first neon Roblox UI library (Rayfield-inspired)  
-Big touch targets • Smooth animations • Many elements
+# NeonVibes Mobile UI – Turtle-Style Edition (Rayfield/Fluent Inspired)
+
+Mobile-optimized Roblox UI library with full TurtleUiLib features + modern Rayfield/Fluent look.
 
 ## Quick Load
 
 ```lua
-local NeonVibes = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
 ```
-# New Features 2026
-Horizontal scrolling tabs (unlimited tabs)
-Minimize / Restore with smooth animation (+ draggable opener circle)
-Theme switcher (Dark/Light)
-Section headers
-Toggle • Button • Slider • Dropdown • ColorPicker • Keybind • Textbox • Paragraph/Label
-Configuration saving (toggles, sliders, etc.)
-Global UI toggle keybind (default: RightShift)
-Discord join prompt option
-Performance & mobile optimizations
-Example Usage
-```local ui = NeonVibes.new("My 2026 Hub")
+## Basic Usage Example
+local window = library:Window("Main Hub")
 
-local tabMain = ui:CreateTab("Main")
-local tabVisuals = ui:CreateTab("Visuals")
-
-ui:AddSection(tabMain, "Basic Controls")
-
-ui:AddButton(tabMain, "Teleport To Spawn", function()
-    ui:Notify("Teleported!", 3)
+window:Button("Teleport Home", function()
+    print("Teleported!")
 end)
 
-ui:AddToggle(tabMain, "Infinite Jump", false, function(state)
-    print("Infinite Jump:", state)
-end, "InfJump") -- auto-saves
+window:Label("Welcome!", true) -- rainbow mode
 
-ui:AddSlider(tabMain, "Speed", 16, 500, 50, function(val)
-    -- set walkspeed
+window:Toggle("Godmode", true, function(state)
+    print("Godmode:", state)
 end)
 
-ui:AddDropdown(tabMain, "ESP Mode", {"Box", "Tracer", "None"}, "None", function(selected)
-    print("ESP:", selected)
+window:Box("Custom Speed", function(text, focused)
+    if focused then
+        print("Speed set to:", text)
+    end
 end)
 
-ui:AddColorPicker(tabVisuals, "ESP Color", Color3.fromRGB(255,0,0), function(color)
-    print("Color changed:", color)
+window:Slider("WalkSpeed", 16, 500, 50, function(value)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
 end)
 
-ui:AddKeybind(tabMain, "Open Menu", Enum.KeyCode.F, function(key)
-    print("Keybind set to:", key.Name)
+local dropdown = window:Dropdown("ESP Mode", {"Box", "Tracer", "None"}, function(selected)
+    print("ESP changed to:", selected)
+end, true) -- selective = true makes button text update
+
+dropdown:Button("Custom Option")
+
+local cp = window:ColorPicker("ESP Color", Color3.fromRGB(255,0,0), function(color)
+    print("Color:", color)
 end)
 
-ui:AddTextbox(tabMain, "Custom Message", "Hello", function(text)
-    print("Text:", text)
-end)
+cp:UpdateColorPicker(Color3.fromRGB(0,255,0)) -- change later
+Global Controls
+library:Hide()                -- toggle all UI visibility
+library:Keybind("RightShift") -- press this key to hide/show UI
+library:Destroy()             -- completely remove UI
+Full API Reference
+library:Window(name: string) → window object
+Creates a new draggable window.
+window methods
+:Button(name: string, callback: function)
+Adds clickable button
+:Label(text: string, rainbow: boolean?)
+Static text label (rainbow = true for color cycling)
+:Toggle(text: string, default: boolean, callback: function(state: boolean))
+On/off switch
+:Box(text: string, callback: function(value: string, focused: boolean))
+Text input box (calls on every change + on focus lost)
+:Slider(text: string, min: number, max: number, default: number, callback: function(value: number))
+Draggable slider with live value display
+:Dropdown(text: string, options: table, callback: function(selected: string), selective: boolean?)
+Returns dropdown object with :Button(name) and :Remove(name) methods
+:ColorPicker(name: string, default: Color3|boolean, callback: function(color: Color3))
+Full HSV color picker with rainbow toggle option
+Returns object with :UpdateColorPicker(color: Color3|boolean)
+Global library methods
+:Hide() → Toggle UI visibility
+:Keybind(key: string) → Set global toggle key (e.g. "RightShift")
+:Destroy() → Remove entire UU
 
-ui:Notify("Welcome to NeonVibes 2026!", 5)
-```
-## API Quick Reference
-.new(title) → Create UI
-:CreateTab(name) → New tab
-:AddSection(tab, title)
-:AddButton(tab, text, callback)
-:AddToggle(tab, name, default, callback, flag?)
-:AddSlider(tab, name, min, max, default, callback)
-:AddDropdown(tab, name, options:table, default, callback)
-:AddColorPicker(tab, name, defaultColor, callback)
-:AddKeybind(tab, name, defaultKey, callback)
-:AddTextbox(tab, name, defaultText, callback)
-:Notify(text, duration?)
-Full documentation & more elements coming soon – keep updating the file!
-MIT License • Mobile Optimized • Free to modify
+
+Delta, FluxusZ, Hydrogen compatible
+## Raw Source: https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
+## MIT License – free to use and modify
