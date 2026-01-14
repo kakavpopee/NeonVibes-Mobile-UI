@@ -14,6 +14,7 @@ local CONFIG = {
     CornerRadius = UDim.new(0, 12),
     Padding = 12,
     ElementHeight = 42,
+    TabHeight = 38,
     TextSize = 16,
     NeonColor = Color3.fromRGB(0, 255, 255),
     BgPrimary = Color3.fromRGB(18, 18, 28),
@@ -154,7 +155,7 @@ function NeonVibes:CreateWindow(name)
     
     DragFunction(TitleBar)
     
-    -- Tab Bar
+    -- Tab Bar (fixed size)
     local TabBar = Instance.new("Frame")
     TabBar.Size = UDim2.new(1, 0, 0, 38)
     TabBar.Position = UDim2.new(0, 0, 0, 50)
@@ -174,7 +175,7 @@ function NeonVibes:CreateWindow(name)
     TabLayout.Padding = UDim.new(0, 10)
     TabLayout.Parent = TabScroll
     
-    -- Content
+    -- Content (scrollable)
     local Content = Instance.new("ScrollingFrame")
     Content.Size = UDim2.new(1, -24, 1, -96)
     Content.Position = UDim2.new(0, 12, 0, 88)
@@ -336,6 +337,41 @@ function NeonVibes:CreateWindow(name)
                     if callback then callback(state) end
                 end
             end)
+        end
+        
+        function tabElements:Notify(text, duration)
+            duration = duration or 3
+            local Notify = Instance.new("Frame")
+            Notify.Size = UDim2.new(0, 300, 0, 60)
+            Notify.Position = UDim2.new(1, -320, 0, 20)
+            Notify.BackgroundColor3 = CONFIG.BgPrimary
+            Notify.Parent = ScreenGui
+            
+            local nCorner = Instance.new("UICorner")
+            nCorner.CornerRadius = UDim.new(0, 10)
+            nCorner.Parent = Notify
+            
+            local nStroke = Instance.new("UIStroke")
+            nStroke.Color = CONFIG.NeonColor
+            nStroke.Thickness = 2
+            nStroke.Parent = Notify
+            
+            local nLabel = Instance.new("TextLabel")
+            nLabel.Size = UDim2.new(1, -20, 1, 0)
+            nLabel.Position = UDim2.new(0, 10, 0, 0)
+            nLabel.BackgroundTransparency = 1
+            nLabel.Text = text
+            nLabel.TextColor3 = CONFIG.TextPrimary
+            nLabel.TextSize = 16
+            nLabel.Font = Enum.Font.Gotham
+            nLabel.TextWrapped = true
+            nLabel.Parent = Notify
+            
+            TweenService:Create(Notify, TweenInfo.new(0.4), {Position = UDim2.new(1, -320, 0, 20)}):Play()
+            task.wait(duration)
+            TweenService:Create(Notify, TweenInfo.new(0.4), {Position = UDim2.new(1, 0, 0, 20)}):Play()
+            task.wait(0.4)
+            Notify:Destroy()
         end
         
         return tabElements
