@@ -14,7 +14,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakav
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
 
 -- Create main window
-local mainWindow = library:Window("My Mobile Hub")
+local mainWindow = library:CreateWindow("My Mobile Hub")
 
 -- Basic button
 mainWindow:Button("Teleport Home", function()
@@ -93,5 +93,6 @@ colorPicker:UpdateColorPicker(color: Color3 | boolean)
 # Raw Source
 https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
 # MIT License – Free to use, modify, and distribute
+
 
 
