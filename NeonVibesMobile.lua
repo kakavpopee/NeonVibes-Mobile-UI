@@ -8,31 +8,28 @@ local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local Mouse = LocalPlayer:GetMouse()
 
 local CONFIG = {
-    WindowSize = UDim2.new(0, 420, 0, 360),
-    CornerRadius = UDim.new(0, 12),
-    Padding = 12,
-    ElementHeight = 36,
-    TextSize = 16,
+    WindowWidthScale = 0.88,      -- 88% screen width (mobile perfect)
+    WindowHeightScale = 0.75,     -- 75% screen height
+    CornerRadius = UDim.new(0, 14),
+    Padding = UDim.new(0, 14),
+    ElementHeightScale = 0.055,   -- Scales to screen height
+    TextSizeScale = 0.025,
+    StrokeThickness = 2.2,
     NeonColor = Color3.fromRGB(0, 255, 255),
-    BgPrimary = Color3.fromRGB(20, 20, 30),
-    BgSecondary = Color3.fromRGB(30, 30, 45),
-    Accent = Color3.fromRGB(45, 45, 65),
-    TextPrimary = Color3.fromRGB(255, 255, 255),
-    Stroke = 1.5
+    BgPrimary = Color3.fromRGB(18, 18, 28),
+    BgSecondary = Color3.fromRGB(28, 28, 45),
+    Accent = Color3.fromRGB(35, 35, 55),
+    TextPrimary = Color3.fromRGB(255, 255, 255)
 }
 
--- Delta/FluxusZ Safe Protection
 local function protectGui(gui)
-    if gethui then
-        gui.Parent = gethui()
-    elseif syn and syn.protect_gui then
+    if syn and syn.protect_gui then
         syn.protect_gui(gui)
         gui.Parent = game.CoreGui
-    elseif PROTOSMASHER_LOADED then
-        gui.Parent = get_hidden_gui()
+    elseif gethui then
+        gui.Parent = gethui()
     else
         gui.Parent = game.CoreGui
     end
@@ -44,17 +41,292 @@ ScreenGui.ResetOnSpawn = false
 protectGui(ScreenGui)
 
 local WindowCount = 0
-local Windows = {}
 
-local function DragFunction(frame)
+local function createTween(obj, goal)
+    TweenService:Create(obj, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), goal):Play()
+end
+
+local function DragFunction(dragHandle, frame)
     local dragging = false
-    local dragInput, mousePos, framePos
+    local dragInput, startPos, startDrag
     
-    frame.InputBegan:Connect(function(input)
+    dragHandle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
-            mousePos = input.Position
-            framePos = frame.Position
+            startPos = frame.Position
+            startDrag = input.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - startDrag
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+function NeonVibes:CreateWindow(name)
+    WindowCount = WindowCount + 1
+    
+    local Window = Instance.new("Frame")
+    Window.Name = name or "NeonVibes Window " .. WindowCount
+    Window.Size = UDim2.new(CONFIG.WindowWidthScale, 0, CONFIG.WindowHeightScale, 0)
+    Window.Position = UDim2.new(0.5, 0, 0.5, 0)
+    Window.AnchorPoint = Vector2.new(0.5, 0.5)
+    Window.BackgroundColor3 = CONFIG.BgPrimary
+    Window.BorderSizePixel = 0
+    Window.ClipsDescendants = true
+    Window.Parent = ScreenGui
+    
+    -- Responsive max size constraint
+    local SizeConstraint = Instance.new("UISizeConstraint")
+    SizeConstraint.MaxSize = Vector2.new(500, 850)
+    SizeConstraint.Parent = Window
+    
+    local WindowCorner = Instance.new("UICorner")
+    WindowCorner.CornerRadius = CONFIG.CornerRadius
+    WindowCorner.Parent = Window
+    
+    local WindowStroke = Instance.new("UIStroke")
+    WindowStroke.Color = CONFIG.NeonColor
+    WindowStroke.Thickness = CONFIG.StrokeThickness
+    WindowStroke.Transparency = 0.3
+    WindowStroke.Parent = Window
+    
+    -- Title Bar (fixed height, properly scaled)
+    local TitleBar = Instance.new("Frame")
+    TitleBar.Name = "TitleBar"
+    TitleBar.Size = UDim2.new(1, 0, 0, 55)
+    TitleBar.BackgroundColor3 = CONFIG.Accent
+    TitleBar.Parent = Window
+    
+    local TitleBarCorner = Instance.new("UICorner")
+    TitleBarCorner.CornerRadius = CONFIG.CornerRadius
+    TitleBarCorner.Parent = TitleBar
+    
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Size = UDim2.new(1, -120, 1, 0)
+    TitleLabel.Position = UDim2.new(0, 16, 0, 0)
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Text = name or "NeonVibes"
+    TitleLabel.TextColor3 = CONFIG.NeonColor
+    TitleLabel.TextSize = math.max(18, ScreenGui.AbsoluteSize.Y * CONFIG.TextSizeScale)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.TextWrapped = true
+    TitleLabel.Parent = TitleBar
+    
+    -- Minimize Button
+    local MinimizeBtn = Instance.new("TextButton")
+    MinimizeBtn.Size = UDim2.new(0, 42, 0, 42)
+    MinimizeBtn.Position = UDim2.new(1, -92, 0.5, -21)
+    MinimizeBtn.BackgroundColor3 = Color3.fromRGB(255, 210, 0)
+    MinimizeBtn.Text = "−"
+    MinimizeBtn.TextColor3 = Color3.new(0,0,0)
+    MinimizeBtn.TextSize = 24
+    MinimizeBtn.Font = Enum.Font.GothamBold
+    MinimizeBtn.Parent = TitleBar
+    
+    local MinCorner = Instance.new("UICorner")
+    MinCorner.CornerRadius = UDim.new(0, 10)
+    MinCorner.Parent = MinimizeBtn
+    
+    -- Close Button
+    local CloseBtn = Instance.new("TextButton")
+    CloseBtn.Size = UDim2.new(0, 42, 0, 42)
+    CloseBtn.Position = UDim2.new(1, -46, 0.5, -21)
+    CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 85, 85)
+    CloseBtn.Text = "×"
+    CloseBtn.TextColor3 = Color3.new(1,1,1)
+    CloseBtn.TextSize = 22
+    CloseBtn.Font = Enum.Font.GothamBold
+    CloseBtn.Parent = TitleBar
+    
+    local CloseCorner = Instance.new("UICorner")
+    CloseCorner.CornerRadius = UDim.new(0, 10)
+    CloseCorner.Parent = CloseBtn
+    
+    CloseBtn.MouseButton1Click:Connect(function()
+        createTween(Window, {Size = UDim2.new(0, 0, 0, 0)})
+        task.wait(0.25)
+        Window:Destroy()
+    end)
+    
+    DragFunction(TitleBar, Window)
+    
+    -- Content Area (properly positioned below title bar)
+    local Content = Instance.new("ScrollingFrame")
+    Content.Name = "Content"
+    Content.Size = UDim2.new(1, -24, 1, -74)
+    Content.Position = UDim2.new(0, 12, 0, 62)
+    Content.BackgroundTransparency = 1
+    Content.BorderSizePixel = 0
+    Content.ScrollBarThickness = 5
+    Content.ScrollBarImageColor3 = CONFIG.NeonColor
+    Content.ScrollBarImageTransparency = 0.3
+    Content.Parent = Window
+    
+    local ContentLayout = Instance.new("UIListLayout")
+    ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    ContentLayout.Padding = CONFIG.Padding
+    ContentLayout.Parent = Content
+    
+    local ContentPadding = Instance.new("UIPadding")
+    ContentPadding.PaddingLeft = CONFIG.Padding
+    ContentPadding.PaddingRight = CONFIG.Padding
+    ContentPadding.PaddingTop = UDim.new(0, 8)
+    ContentPadding.PaddingBottom = CONFIG.Padding
+    ContentPadding.Parent = Content
+    
+    ContentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        Content.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y + 20)
+    end)
+    
+    local Elements = {}
+    
+    -- Button (properly sized and padded)
+    function Elements:Button(text, callback)
+        local BtnHeight = math.max(48, ScreenGui.AbsoluteSize.Y * CONFIG.ElementHeightScale)
+        local Btn = Instance.new("TextButton")
+        Btn.Size = UDim2.new(1, 0, 0, BtnHeight)
+        Btn.BackgroundColor3 = CONFIG.BgSecondary
+        Btn.Text = text
+        Btn.TextColor3 = CONFIG.TextPrimary
+        Btn.TextSize = math.max(16, ScreenGui.AbsoluteSize.Y * CONFIG.TextSizeScale)
+        Btn.Font = Enum.Font.GothamSemibold
+        Btn.TextWrapped = true
+        Btn.Parent = Content
+        
+        local BtnCorner = Instance.new("UICorner")
+        BtnCorner.CornerRadius = UDim.new(0, 10)
+        BtnCorner.Parent = Btn
+        
+        local BtnStroke = Instance.new("UIStroke")
+        BtnStroke.Color = CONFIG.NeonColor
+        BtnStroke.Thickness = 1.5
+        BtnStroke.Transparency = 0.6
+        BtnStroke.Parent = Btn
+        
+        Btn.MouseButton1Click:Connect(callback or function() end)
+        
+        -- Ripple animation
+        Btn.MouseButton1Down:Connect(function()
+            local Ripple = Instance.new("Frame")
+            Ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+            Ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
+            Ripple.Size = UDim2.new(0, 0, 0, 0)
+            Ripple.BackgroundColor3 = CONFIG.NeonColor
+            Ripple.BackgroundTransparency = 0.4
+            Ripple.ZIndex = 10
+            Ripple.Parent = Btn
+            
+            local RippleCorner = Instance.new("UICorner")
+            RippleCorner.CornerRadius = UDim.new(1, 0)
+            RippleCorner.Parent = Ripple
+            
+            createTween(Ripple, {Size = UDim2.new(2.5, 0, 2.5, 0), BackgroundTransparency = 1})
+            task.delay(0.3, function() Ripple:Destroy() end)
+        end)
+    end
+    
+    -- Toggle (right-aligned, properly scaled)
+    function Elements:Toggle(text, default, callback)
+        local ToggleHeight = math.max(48, ScreenGui.AbsoluteSize.Y * CONFIG.ElementHeightScale)
+        local Frame = Instance.new("Frame")
+        Frame.Size = UDim2.new(1, 0, 0, ToggleHeight)
+        Frame.BackgroundTransparency = 1
+        Frame.Parent = Content
+        
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, -85, 1, 0)
+        Label.BackgroundTransparency = 1
+        Label.Text = text
+        Label.TextColor3 = CONFIG.TextPrimary
+        Label.TextSize = math.max(16, ScreenGui.AbsoluteSize.Y * CONFIG.TextSizeScale)
+        Label.Font = Enum.Font.Gotham
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        Label.TextWrapped = true
+        Label.Parent = Frame
+        
+        local ToggleBg = Instance.new("Frame")
+        ToggleBg.Size = UDim2.new(0, 58, 0, 28)
+        ToggleBg.Position = UDim2.new(1, -72, 0.5, -14)
+        ToggleBg.BackgroundColor3 = default and CONFIG.NeonColor or Color3.fromRGB(65, 65, 85)
+        ToggleBg.Parent = Frame
+        
+        local BgCorner = Instance.new("UICorner")
+        BgCorner.CornerRadius = UDim.new(0, 14)
+        BgCorner.Parent = ToggleBg
+        
+        local Knob = Instance.new("Frame")
+        Knob.Size = UDim2.new(0, 24, 0, 24)
+        Knob.Position = default and UDim2.new(1, -28, 0.5, -12) or UDim2.new(0, 2, 0.5, -12)
+        Knob.BackgroundColor3 = CONFIG.TextPrimary
+        Knob.Parent = ToggleBg
+        
+        local KnobCorner = Instance.new("UICorner")
+        KnobCorner.CornerRadius = UDim.new(0, 12)
+        KnobCorner.Parent = Knob
+        
+        local state = default or false
+        
+        Frame.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                state = not state
+                createTween(ToggleBg, {BackgroundColor3 = state and CONFIG.NeonColor or Color3.fromRGB(65, 65, 85)})
+                createTween(Knob, {Position = state and UDim2.new(1, -28, 0.5, -12) or UDim2.new(0, 2, 0.5, -12)})
+                if callback then callback(state) end
+            end
+        end)
+    end
+    
+    -- Add other elements (Slider, etc.) using same scale pattern...
+    
+    function Elements:Notify(text, duration)
+        duration = duration or 3
+        local Notify = Instance.new("Frame")
+        Notify.Size = UDim2.new(0, math.min(320, ScreenGui.AbsoluteSize.X * 0.8), 0, 65)
+        Notify.Position = UDim2.new(1, -math.min(340, ScreenGui.AbsoluteSize.X * 0.85), 0, 20)
+        Notify.BackgroundColor3 = CONFIG.BgPrimary
+        Notify.Parent = ScreenGui
+        
+        local NotifyCorner = Instance.new("UICorner")
+        NotifyCorner.CornerRadius = UDim.new(0, 12)
+        NotifyCorner.Parent = Notify
+        
+        local NotifyStroke = Instance.new("UIStroke")
+        NotifyStroke.Color = CONFIG.NeonColor
+        NotifyStroke.Thickness = 2.5
+        NotifyStroke.Parent = Notify
+        
+        local NotifyLabel = Instance.new("TextLabel")
+        NotifyLabel.Size = UDim2.new(1, -20, 1, 0)
+        NotifyLabel.Position = UDim2.new(0, 12, 0, 0)
+        NotifyLabel.BackgroundTransparency = 1
+        NotifyLabel.Text = text
+        NotifyLabel.TextColor3 = CONFIG.TextPrimary
+        NotifyLabel.TextSize = math.max(15, ScreenGui.AbsoluteSize.Y * 0.022)
+        NotifyLabel.Font = Enum.Font.Gotham
+        NotifyLabel.TextWrapped = true
+        NotifyLabel.Parent = Notify
+        
+        createTween(Notify, {Position = UDim2.new(1, -math.min(340, ScreenGui.AbsoluteSize.X * 0.85), 0, 20)})
+        task.wait(duration)
+        createTween(Notify, {Position = UDim2.new(1, 0, 0, 20)})
+        task.wait(0.3)
+        Notify:Destroy()
+    end
+    
+    return Elements
+end
+
+return NeonVibes            framePos = frame.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
