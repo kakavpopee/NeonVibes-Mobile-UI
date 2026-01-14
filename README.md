@@ -1,39 +1,60 @@
 # NeonVibes Mobile UI
 
-Mobile-first Roblox UI library with neon aesthetic, Rayfield/Fluent inspired design, and full TurtleUiLib feature set.  
-Optimized for Delta, FluxusZ, Hydrogen on mobile. Includes unique reopen icon.
+Modern, mobile-first Roblox UI library inspired by **Rayfield** and **Kavo UI**.  
+Smooth animations • Neon aesthetic • Full touch support • Config saving • Themes • Reopen icon  
+Optimized for Delta, FluxusZ, Hydrogen on mobile.
 
 ## Quick Load
 
 ```lua
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
+local NeonVibes = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
 ```
 
 ## Quick Start Example
 
 ```lua
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
+local window = NeonVibes:CreateWindow({
+    Name = "NeonVibes Hub",
+    LoadingTitle = "NeonVibes",
+    LoadingSubtitle = "by KaolinScripts",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "NeonVibes",
+        FileName = "Config"
+    },
+    KeySystem = false
+})
 
-local window = library:CreateWindow("NeonVibes Hub")
+local mainTab = window:CreateTab("Main", "rewind") -- Icon name from Lucide
 
-local mainTab = window:CreateTab("Main")
-
-mainTab:Button("Teleport Home", function()
-    local char = game.Players.LocalPlayer.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        char.HumanoidRootPart.CFrame = CFrame.new(0, 100, 0)
+mainTab:CreateButton({
+    Name = "Teleport Home",
+    Callback = function()
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            char.HumanoidRootPart.CFrame = CFrame.new(0, 100, 0)
+        end
+        NeonVibes:Notify("Teleported!", "success", 3)
     end
-end)
+})
 
-mainTab:Label("Welcome!", true) -- rainbow mode
+mainTab:CreateLabel("Rainbow Label Test", true)
 
-mainTab:Toggle("Godmode", false, function(state)
-    print("Godmode:", state)
-end)
+mainTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Flag = "InfiniteJump",
+    Callback = function(Value)
+        print("Infinite Jump:", Value)
+    end
+})
 
-mainTab:Box("Custom Speed", function(value, focused)
-    if focused then
-        local speed = tonumber(value)
+mainTab:CreateInput({
+    Name = "Custom Speed",
+    PlaceholderText = "Enter speed...",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        local speed = tonumber(Text)
         if speed then
             local char = game.Players.LocalPlayer.Character
             if char and char:FindFirstChild("Humanoid") then
@@ -41,75 +62,135 @@ mainTab:Box("Custom Speed", function(value, focused)
             end
         end
     end
-end)
+})
 
-mainTab:Slider("Walk Speed", 16, 500, 50, function(value)
-    local char = game.Players.LocalPlayer.Character
-    if char and char:FindFirstChild("Humanoid") then
-        char.Humanoid.WalkSpeed = value
+mainTab:CreateSlider({
+    Name = "Walk Speed",
+    Range = {16, 500},
+    Increment = 1,
+    CurrentValue = 50,
+    Flag = "WalkSpeed",
+    Callback = function(Value)
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            char.Humanoid.WalkSpeed = Value
+        end
     end
-end)
+})
 
-local dropdown = mainTab:Dropdown("ESP Mode", {"Box", "Tracer", "None"}, function(selected)
-    print("ESP:", selected)
-end, true)
+local dropdown = mainTab:CreateDropdown({
+    Name = "ESP Mode",
+    Options = {"Box", "Tracer", "None"},
+    CurrentOption = "None",
+    Flag = "ESPMode",
+    Callback = function(Option)
+        print("ESP changed to:", Option)
+    end
+})
 
-dropdown:Button("Custom ESP")
+dropdown:Add("Custom ESP")
 
-mainTab:ColorPicker("ESP Color", Color3.fromRGB(255, 0, 100), function(color)
-    print("Color changed:", color)
-end)
+mainTab:CreateColorpicker({
+    Name = "ESP Color",
+    Color = Color3.fromRGB(255, 0, 100),
+    Flag = "ESPColor",
+    Callback = function(Value)
+        print("Color changed:", Value)
+    end
+})
 
-library:Keybind("RightShift") -- global hide/show key
-
--- Close window with red × → round neon icon appears top-left. Tap to reopen.
+NeonVibes:CreateNotification("Welcome!", "Close window → icon appears top-left. Tap to reopen.", 6)
 ```
 
 ## API Reference
 
-### Global Library Methods
+### Window Creation
 
 ```lua
-library:CreateWindow(name: string) → window object
-library:Keybind(keyName: string)      -- Set global toggle key (e.g. "RightShift")
-library:Hide()                        -- Toggle UI visibility
-library:Destroy()                     -- Remove entire UI
+NeonVibes:CreateWindow({
+    Name = string,                    -- Window title
+    LoadingTitle = string?,           -- Optional loading screen title
+    LoadingSubtitle = string?,        -- Optional loading screen subtitle
+    ConfigurationSaving = {           -- Optional
+        Enabled = boolean,
+        FolderName = string?,
+        FileName = string?
+    },
+    KeySystem = boolean?              -- Not implemented yet
+}) → window object
 ```
 
-### Window Object Methods
+### Window Methods
 
 ```lua
-window:CreateTab(name: string) → tab object
+window:CreateTab(name: string, icon: string?) → tab object
 
-window:Button(text: string, callback: function())
-window:Label(text: string, rainbow: boolean?)
-window:Toggle(text: string, default: boolean, callback: function(state: boolean))
-window:Box(text: string, callback: function(value: string, focused: boolean))
-window:Slider(text: string, min: number, max: number, default: number, callback: function(value: number))
-window:Dropdown(text: string, options: {string}, callback: function(selected: string), selective: boolean?)
-    → dropdown object with :Button(name: string) method
-window:ColorPicker(name: string, default: Color3|boolean, callback: function(color: Color3))
-    → colorPicker object with :UpdateColorPicker(color: Color3|boolean) method
-window:Notify(text: string, duration: number?)
+window:CreateButton({
+    Name = string,
+    Callback = function()
+})
+window:CreateLabel(text: string, rainbow: boolean?)
+window:CreateToggle({
+    Name = string,
+    CurrentValue = boolean,
+    Flag = string?,                   -- For config saving
+    Callback = function(Value: boolean)
+})
+window:CreateInput({
+    Name = string,
+    PlaceholderText = string?,
+    RemoveTextAfterFocusLost = boolean?,
+    Callback = function(Text: string)
+})
+window:CreateSlider({
+    Name = string,
+    Range = {number, number},
+    Increment = number,
+    CurrentValue = number,
+    Flag = string?,
+    Callback = function(Value: number)
+})
+window:CreateDropdown({
+    Name = string,
+    Options = {string},
+    CurrentOption = string,
+    Flag = string?,
+    Callback = function(Option: string)
+}) → dropdown object with :Add(name), :Remove(name)
+window:CreateColorpicker({
+    Name = string,
+    Color = Color3,
+    Flag = string?,
+    Callback = function(Value: Color3)
+})
+window:CreateNotification(title: string, content: string, duration: number?)
 ```
 
 ### Dropdown Object
 
 ```lua
-dropdown:Button(name: string)     -- Add new option
+dropdown:Add(name: string)
+dropdown:Remove(name: string)
+dropdown:Refresh(newOptions: {string}, deleteCurrent: boolean?)
 ```
 
 ### Special Features
 
+- **Config Saving**  
+  Use `Flag` on Toggle/Slider/Input/Dropdown/ColorPicker → values auto-save/load.
+
+- **Themes**  
+  Not fully implemented yet – coming soon (Dark/Neon/Light switch).
+
 - **Reopen Icon**  
   Close window with red × → GUI hides, neon round icon appears top-left.  
-  Tap icon → GUI reopens smoothly. Built-in for all users.
+  Tap icon → GUI reopens smoothly. Built-in.
 
 - **Tabs**  
-  Horizontal scrolling tab bar, instant content switching.
+  Horizontal scrolling tab bar with icons (Lucide-style names).
 
 - **Dragging**  
-  Drag title bar → entire window (title + content + elements) moves.
+  Drag title bar → entire window moves.
 
 - **Notifications**  
   Slide-in from right with neon stroke.
@@ -119,103 +200,4 @@ dropdown:Button(name: string)     -- Add new option
 https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
 
 MIT License – Free to use, modify, distribute
-```    if char and char:FindFirstChild("HumanoidRootPart") then
-        char.HumanoidRootPart.CFrame = CFrame.new(0, 100, 0)
-    end
-    mainWindow:Notify("Teleported!", 3)
-end)
-
-mainTab:Label("Welcome Message", true) -- rainbow effect
-
-mainTab:Toggle("Godmode", false, function(state)
-    print("Godmode:", state)
-end)
-
-mainTab:Box("Custom Command", function(value, focused)
-    if focused then
-        print("Command entered:", value)
-    end
-end)
-
-mainTab:Slider("Speed", 16, 300, 50, function(value)
-    local char = game.Players.LocalPlayer.Character
-    if char and char:FindFirstChild("Humanoid") then
-        char.Humanoid.WalkSpeed = value
-    end
-end)
-
--- Tab 2 - Visuals
-local visualsTab = mainWindow:CreateTab("Visuals")
-
-local espDropdown = visualsTab:Dropdown("ESP Mode", {"Box", "Tracer", "None"}, function(selected)
-    print("ESP changed to:", selected)
-end, true) -- selective = true → button text updates
-
-espDropdown:Button("Custom ESP") -- add new option
-
-visualsTab:ColorPicker("ESP Color", Color3.fromRGB(255, 0, 100), function(color)
-    print("Color updated:", color)
-end)
-
--- Global controls
-library:Keybind("RightShift")   -- Press RightShift to hide/show all UI
-library:Hide()                  -- Toggle visibility manually
--- library:Destroy()            -- Remove UI completely (uncomment if needed)
-
--- Custom feature demo
-mainWindow:Notify("Close with red × → round neon icon appears top-left. Tap to reopen!", 6)
 ```
-## Full API Reference
-Global Library Methods
-```lua
-library:CreateWindow(name: string) → window object
-library:Keybind(keyName: string)      -- Set global hide/show key (e.g. "RightShift")
-library:Hide()                        -- Toggle all UI visibility
-library:Destroy()                     -- Completely remove the library
-```
-## Window Methods
-window:CreateTab(name: string) → tab object
-```lua
-window:Button(text: string, callback: function())
-window:Label(text: string, rainbow: boolean?)
-window:Toggle(text: string, default: boolean, callback: function(state: boolean))
-window:Box(text: string, callback: function(value: string, focused: boolean))
-window:Slider(text: string, min: number, max: number, default: number, callback: function(value: number))
-window:Dropdown(text: string, options: {string}, callback: function(selected: string), selective: boolean?)
-    → dropdown object with :Button(name) and :Remove(name) methods
-window:ColorPicker(name: string, default: Color3|boolean, callback: function(color: Color3))
-    → colorPicker object with :UpdateColorPicker(color: Color3|boolean)
-window:Notify(text: string, duration: number?)
-```
-## Dropdown Object
-```lua
-dropdown:Button(name: string)     -- Add new option
-dropdown:Remove(name: string)     -- Remove option by name
-```
-## ColorPickerkerject
-```lua
-colorPicker:UpdateColorPicker(color: Color3 | boolean)
--- Color3 → set specific color
--- true/false → enable/disable rainbow mode
-```
-## Special Feature: Reopen Icon
-***When any window is closed with the red × button:***
-
-- GUI hides (not destroys)
-Round neon icon appears top-left corner
-- Tap/click icon → GUI reopens smoothly
-- Built-in for all users – no extra code needed
-## Features Overview
-- Multiple draggable windows
-Per-window minimize & close
-- Global reopen icon (top-left, round, neon)
-- Full TurtleUiLib elements (Button, Label, Toggle, Box, Slider, Dropdown, ColorPicker)
-- Tabs (horizontal scrolling, instant switch)
-- Scrolling content with auto size
-- Smooth animations & ripple effects
-- Mobile touch optimized (large targets, drag support)
-- Global hide/show keybind
-- Delta / FluxusZ / Hydrogen compatible
-## Raw Source: https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua
-***MIT License – Free to use and to modify,and to distribuite***
-
