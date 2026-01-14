@@ -1,7 +1,7 @@
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/kakavpopee/NeonVibes-Mobile-UI/main/NeonVibesMobile.lua"))()
 
 -- Create main window
-local mainWindow = library:Window("My Mobile Hub")
+local mainWindow = library:CreateWindow("My Mobile Hub")
 
 -- Basic button
 mainWindow:Button("Teleport Home", function()
